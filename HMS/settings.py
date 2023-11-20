@@ -15,6 +15,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+AUTH_USER_MODEL = 'accounting.User'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.1/howto/deployment/checklist/
@@ -41,7 +42,8 @@ INSTALLED_APPS = [
     "frontdesk.apps.FrontdeskConfig",
     "management.apps.ManagementConfig",
     "restaurant.apps.RestaurantConfig",
-    "accounting.apps.AccountingConfig"
+    "accounting.apps.AccountingConfig",
+    "rest_framework.authtoken"
 ]
 
 MIDDLEWARE = [
@@ -126,3 +128,9 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/4.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+    ),
+}
