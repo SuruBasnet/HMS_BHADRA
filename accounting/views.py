@@ -5,9 +5,11 @@ from rest_framework.response import Response
 from .serializers import *
 from rest_framework.generics import GenericAPIView
 from django.shortcuts import get_object_or_404
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.models import Token
+from core.permissions import CustomModelPermission
+from django.contrib.auth.hashers import make_password
 
 # Create your views here.
 # @api_view(['GET','POST'])
@@ -28,9 +30,8 @@ from rest_framework.authtoken.models import Token
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def logout(request):
-    request.user.auth_token.delete() # Reverse access and token related with the user is being queried 
+    request.user.auth_token.delete() # Reverse access and token related with the user is being queried and deleted
     return Response('Logout successfully!')
-
 
 @api_view(['POST'])
 def login(request):
@@ -43,9 +44,18 @@ def login(request):
         token , _ = Token.objects.get_or_create(user=user)
         return Response(token.key)
 
-class InvoiceApiView(GenericAPIView):
+@api_view(['POST'])
+@permission_classes([IsAuthenticated,IsAdminUser])
+def register(request):
+    email = request.data.get('email')
+    password = request.data.get('password')
+    hash_password = make_password(password)
+    User.objects.create(email=email,password=hash_password)
+    return Response('User created!')
 
-    permission_classes = [IsAuthenticated]
+class InvoiceApiView(GenericAPIView):
+    queryset_model = Invoice
+    permission_classes = [IsAuthenticated,CustomModelPermission]
 
     def get(self,request):
         queryset = Invoice.objects.all()
